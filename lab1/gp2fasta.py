@@ -72,7 +72,7 @@ def write_fasta(path: str, data_list: list, sep: str) -> None:
 
 
 def change_format(data: list, form: str) -> list:
-    if form == "M.Musculeu":
+    if form == "M.Musculus":
         for d in data:
             d["organism"] = f"{d['organism'].split()[0][0]}. {d['organism'].split()[1].lower()}"
     if form == "Musmus":
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     parser.add_argument("input", action="store", help="Path to the input file")
     parser.add_argument("--output", action="store", default="output.fas", help="Path to the output file")
     parser.add_argument("--separator", "-s", action="store", default="-", help="Separator to be used in the header")
-    parser.add_argument("--organism", "-o", action="store", choices=["Mus musculus", "M.musculeu", "Musmus"],
+    parser.add_argument("--organism", "-o", action="store", choices=["Mus musculus", "M.musculus", "Musmus"],
                         help="Format of organism name to be used in the header")
     parser.add_argument("--id", "-i", action="store", choices=["GI", "LOC"],
                         help="Type of id to be used in the header")
