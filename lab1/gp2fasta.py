@@ -31,7 +31,6 @@ def read_gp(arg) -> list:
                         matches = re.findall(r"GI:\d+", line)
                         if matches:
                             data["gi"] = matches[0][2:]
-
                 else:
                     if line.startswith("LOCUS"):   # Pierwsze co jest po 'LOCUS'
                         data['locus'] = line.split()[1]
@@ -41,7 +40,8 @@ def read_gp(arg) -> list:
             if arg['gene_name']:  # Pierwsze co jest po 'DEFINITION'
                 if line.startswith("DEFINITION"):
                     data['gene_name'] = " ".join([x for x in line.split()[1:] if x != "PREDICTED:"])  # Weź dwa słowa pojawiające się po 'ORGANISM'
-            # Wszystko co jest po 'ORIGIN' do końca
+
+            # Sekwencją jest wszystko co jest po 'ORIGIN' do końca
             if line.startswith("ORIGIN"):
                 seq = True
             if seq:
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(prog="gp2fasta",
                             description="convert gp to fasta format")
     parser.add_argument("input", action="store", help="Path to the input file")
-    parser.add_argument("--output", action="store", default="output.fasta", help="Path to the output file")
+    parser.add_argument("--output", action="store", default="output.fas", help="Path to the output file")
     parser.add_argument("--separator", "-s", action="store", default="-", help="Separator to be used in the header")
     parser.add_argument("--organism", "-o", action="store", choices=["Mus musculus", "M.musculeu", "Musmus"],
                         help="Format of organism name to be used in the header")
