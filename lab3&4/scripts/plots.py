@@ -77,8 +77,8 @@ def plot_databases(path: str):
 
 
 if __name__ == '__main__':
-    path = '../data/'
-    plot_databases(path + 'misc')
-    plot_databases(path + 'databases')
-    plot_kingdoms(path)
+    data_path = '../data/'
+    plot_databases(data_path + 'misc')
+    plot_databases(data_path + 'databases')
+    plot_kingdoms(data_path)
 
