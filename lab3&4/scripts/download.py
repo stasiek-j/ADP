@@ -1,3 +1,4 @@
+import json
 import os
 
 import requests as r
@@ -37,19 +38,19 @@ def download_kingdom(king: str, path: str, count: int = 100):
     return king
 
 
-def download_query(tax_id: str, path: str):
+def download_query(tax_id: str, path: str, organism: str):
     rest_link = f"https://rest.uniprot.org/proteomes/stream?query=reference:true+taxonomy_id:{tax_id}&top_node&format=list"
     proteome_id = r.get(rest_link).text.split()[0]
     rest_link_prot = f"https://rest.uniprot.org/uniprotkb/stream?query=proteome:{proteome_id}&format=fasta"
     with r.get(rest_link_prot, stream=True) as req:
         req.raise_for_status()
         try:
-            with open(path + tax_id + '.fasta', 'wb') as f:
+            with open(path + organism + '.fasta', 'wb') as f:
                 for chunk in req.iter_content(chunk_size=2 ** 20):
                     f.write(chunk)
         except FileNotFoundError:
             os.mkdir(path)
-            with open(path + tax_id + '.fasta', 'wb') as f:
+            with open(path + organism + '.fasta', 'wb') as f:
                 for chunk in req.iter_content(chunk_size=2 ** 20):
                     f.write(chunk)
     return proteome_id
@@ -57,22 +58,35 @@ def download_query(tax_id: str, path: str):
 
 def download_swiss(path: str):
     url = "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
-    wget.download(url, f"{path}swissprot.fasta.gz")
+    try:
+        wget.download(url, f"{path}swissprot.fasta.gz")
+    except FileNotFoundError:
+        os.makedirs(path)
+        wget.download(url, f"{path}swissprot.fasta.gz")
+
 
 
 def download_pdb(path: str):
     url = "https://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz"
-    wget.download(url, f"{path}pdb.fasta.gz")
+    try:
+        wget.download(url, f"{path}pdb.fasta.gz")
+    except FileNotFoundError:
+        os.makedirs(path)
+        wget.download(url, f"{path}pdb.fasta.gz")
+
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(prog="download",
                             description="download proteomes")
     parser.add_argument('data_path', action='store', help="where should data be sotred")
-    parser.add_argument('--queries', '-q', action='store_true', help="should proteomes of organisms listed in exercise"
-                                                                     " description be downloaded")
+    parser.add_argument('--queries', '-q', action='store',
+                        help="path to JSON file containing queries to be downloaded",
+                        type=str)
     parser.add_argument('--king', '-k', action='store_true', help="should proteomes of organisms in kingdoms given "
                                                                   "in exercise description be downloaded")
+    parser.add_argument('--counts', '-c', action='store', type=int, help="how many organisms from each kingdom "
+                                                                         "should be downloaded", default=100)
     parser.add_argument('--pdb', '-p', action='store_true', help='should pdb be downloaded')
     parser.add_argument('--swiss', '-s', action='store_true', help='should swissprot be downloaded')
 
@@ -82,18 +96,21 @@ if __name__ == '__main__':
     os.makedirs(path, exist_ok=True)
 
     if args.queries:
-        queries = ['9606', '562', "224308", "559292", "3702", "7227", "6239", "10090", "7955"]
-        pbar = tqdm(queries)
+        with open(args.queries, 'r') as f:
+            organisms = json.load(f)
+        pbar = tqdm(organisms.items())
         for query in pbar:
-            pbar.set_description(f"downloaded proteome: {download_query(query, f'{path}/misc/')}")
+            pbar.set_description(f"downloaded proteome: {download_query(query[1], f'{path}/misc/', query[0])}")
 
     if args.king:
         kingdoms = ['Archaea', "Eukaryota", "Viruses", "Bacteria"]
         for kingdom in kingdoms:
-            download_kingdom(kingdom, f'{path}/{kingdom}/', 10)
+            download_kingdom(kingdom, f'{path}/{kingdom}/', args.counts)
 
     if args.pdb:
-        download_pdb(f'{path}/databases/')
+        print("Downloading PDB")
+        download_pdb(f'{path}/databases/PDB/')
 
     if args.swiss:
-        download_swiss(f'{path}/databases/')
+        print("Downloading SwissProt")
+        download_swiss(f'{path}/databases/SwissProt/')

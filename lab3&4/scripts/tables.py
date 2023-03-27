@@ -1,50 +1,10 @@
-import gzip
 from collections import defaultdict
-from os import listdir
-from os.path import isfile, join
-from typing import Any, Tuple, List
-
 from tabulate import tabulate
-import numpy as np
 import pandas as pd
-from Bio import SeqIO
-from numpy import ndarray
-from scipy import stats
+from utils import get_aa
 
 
-def get_aa(mypath: str) -> tuple[list[tuple[list[int], ndarray, ndarray | float, str]], defaultdict[Any, int]]:
-    """
-    Get amino acid counts and protein lengths from files in `mypath`
-    :param mypath: path to the files
-    :return: List of tuples of form: (file, aa_dict, lens)
-    """
-    onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-
-    orgs = []
-    for file in onlyfiles:
-        lens = []
-        aa_dict = defaultdict(float)
-        if file.endswith('gz'):
-            with gzip.open(f"{mypath}/{file}", "rt") as handle:
-                for record in SeqIO.parse(handle, "fasta"):
-                    if record.seq:
-                        lens.append(len(record.seq))
-                        for letter in record.seq:
-                            aa_dict[letter] += 1
-        elif file.endswith('fasta'):
-            print(file)
-            for record in SeqIO.parse(f"{mypath}/{file}", "fasta"):
-                if record.seq:
-                    lens.append(len(record.seq))
-                    for letter in record.seq:
-                        aa_dict[letter] += 1
-        aa_dict["Avg. protein length"] = np.mean(lens).item()
-        orgs.append((file, aa_dict, lens))
-
-    return orgs
-
-
-def get_king(orgs, king):
+def _get_king(orgs, king):
     """
     Agregate info from files in directory to one
     :param orgs:
@@ -82,6 +42,11 @@ def make_table(orgs):
 
 
 if __name__ == '__main__':
-    # make_table(get_aa("../data/misc"))
+    make_table(get_aa("../data/misc")[0])
     kings = ['Archaea', "Eukaryota", "Viruses", "Bacteria"]
-    make_table([get_king(get_aa(f"../data/{king}"), king) for king in kings])
+    make_table([_get_king(get_aa(f"../data/{king}")[0], king) for king in kings])
+    n_term = get_aa(f"../data/Eukaryota")[1]
+    n_term_freq = {k: n_term.count(k)/len(n_term) for k in set(n_term)}
+    print(max(n_term_freq.items(), key=lambda x: x[1]))
+    make_table(get_aa('../data/PDB/')[0])
+
