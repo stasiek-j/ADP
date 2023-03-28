@@ -85,14 +85,14 @@ def get_aa(mypath: str, file_flag: bool = False, statistic: str = 'mean') -> Tup
                 for record in SeqIO.parse(handle, "fasta"):
                     if record.seq:
                         lens.append(len(record.seq))
-                        n_term.append(record.seq[-1])
+                        n_term.append(record.seq[0])
                         for letter in record.seq:
                             aa_dict[letter] += 1
         elif file.endswith('fasta'):
             for record in SeqIO.parse(f"{mypath}/{file}", "fasta"):
                 if record.seq:
                     lens.append(len(record.seq))
-                    n_term.append(record.seq[-1])
+                    n_term.append(record.seq[0])
                     for letter in record.seq:
                         aa_dict[letter] += 1
         if statistic == 'mean':

@@ -65,7 +65,6 @@ def download_swiss(path: str):
         wget.download(url, f"{path}swissprot.fasta.gz")
 
 
-
 def download_pdb(path: str):
     url = "https://ftp.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz"
     try:
@@ -73,7 +72,6 @@ def download_pdb(path: str):
     except FileNotFoundError:
         os.makedirs(path)
         wget.download(url, f"{path}pdb.fasta.gz")
-
 
 
 if __name__ == '__main__':
