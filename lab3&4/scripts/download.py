@@ -27,11 +27,11 @@ def download_kingdom(king: str, path: str, count: int = 100):
                  link.get('href').find('fasta') != -1 and link.get('href').find('DNA.fasta') == -1]
         if len(links) == 1:
             added += 1
-        try:
-            wget.download(ftp_url + prot + links[0], path + links[0])
-        except FileNotFoundError:
-            os.mkdir(path)
-            wget.download(ftp_url + prot + links[0], path + links[0])
+            try:
+                wget.download(ftp_url + prot + links[0], path + links[0])
+            except FileNotFoundError:
+                os.mkdir(path)
+                wget.download(ftp_url + prot + links[0], path + links[0])
 
         i += 1
         pbar_while.update()

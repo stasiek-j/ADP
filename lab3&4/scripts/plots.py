@@ -20,6 +20,7 @@ def plot_kingdoms(path: str, swiss: bool = False, stat='mean', save=None):
     kings = {key: get_length_king(value, statistic=stat) for key, value in data.items()}
     plt.bar(range(len(kings)), [x[0] for x in kings.values()],
             yerr=[x[1] for x in kings.values()], tick_label=[key for key, _ in kings.items()])
+    plt.title(f"Avg. proetin lengths using {stat}")
     if save:
         plt.savefig(save)
     plt.show()
@@ -34,7 +35,7 @@ def plot_databases(path: str, stat='mean', save=None):
     data = get_length_org(path, recursive=True, statistic=stat)
     plt.bar(range(len(data)), [x[1] for x in data],
             yerr=[x[2] for x in data], tick_label=[".".join(x[3].split('.')[:-1]) for x in data])
-
+    plt.title(f"Average protein length using {stat}")
     if save:
         plt.savefig(save)
     plt.show()
@@ -65,6 +66,7 @@ def pretty_plot_lengths(path: str, boxplot: bool = False, stat='mean', colors=No
         plt.xticks(ticks=range(1, len(data) + 1), labels=[".".join(x[0].split('.')[:-1]) for x in data], rotation=30)
     plt.xlabel("Organism")
     plt.ylabel("Avg. protein length")
+    plt.title(f"Averege protein length using {stat}")
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
@@ -89,6 +91,7 @@ def pretty_plot_lengths_kings(path: str, boxplot: bool = False, stat='mean', swi
 
     plt.xlabel("Organism")
     plt.ylabel("Avg. protein length")
+    plt.title(f"Averege protein length in kingdoms using {stat}")
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
@@ -108,6 +111,7 @@ def plot_aa(path: str, stat: str = 'mean', save=None):
     df = df / df.sum(axis=0)
     df.plot.bar(xlabel="Aminoacid", ylabel="Frequency")
     plt.xticks(rotation=90)
+    plt.title("Aminoacid frequency plot for selected organisms")
     if save:
         plt.savefig(save)
     plt.show()
@@ -117,7 +121,7 @@ def plot_histogram(path: str, threshold: int = 3000, stat='mean', save=None):
     data = get_aa(path, statistic=stat)[0]
     for i, (file, _, lens) in enumerate(data):
         plt.hist(lens, bins=range(0, threshold, threshold // 10))
-        plt.title(f"{file}")
+        plt.title(f"{file} histogram")
         plt.xlabel("Protein length")
         plt.ylabel("# of proteins")
         if save:
